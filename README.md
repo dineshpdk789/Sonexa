@@ -114,13 +114,57 @@ flutter pub get
 
 # Run on connected device
 flutter run
-
-# Build debug APK
-flutter build apk --debug
-
-# Build release APK
-flutter build apk --release
 ```
+
+## 📥 Download
+
+[![Download for Android](https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android)](https://github.com/dineshpdk789/Sonexa/releases/latest)
+[![Download for iOS](https://img.shields.io/badge/iOS-IPA-000000?style=for-the-badge&logo=apple)](https://github.com/dineshpdk789/Sonexa/releases/latest)
+[![Download for Windows](https://img.shields.io/badge/Windows-EXE-0078D6?style=for-the-badge&logo=windows)](https://github.com/dineshpdk789/Sonexa/releases/latest)
+[![Download for Linux](https://img.shields.io/badge/Linux-AppImage-FCC624?style=for-the-badge&logo=linux)](https://github.com/dineshpdk789/Sonexa/releases/latest)
+[![Download for macOS](https://img.shields.io/badge/macOS-DMG-000000?style=for-the-badge&logo=apple)](https://github.com/dineshpdk789/Sonexa/releases/latest)
+
+> Tap a badge above to download the latest build for your platform.
+
+To build from source instead:
+
+<details>
+<summary>Build commands & output paths</summary>
+
+### Android
+```bash
+flutter build apk --release --split-per-abi
+# Output: build/app/outputs/flutter-apk/app-*-release.apk
+
+flutter build appbundle --release
+# Output: build/app/outputs/bundle/release/app-release.aab
+```
+
+### iOS
+```bash
+flutter build ios --release --no-codesign
+# Output: build/ios/iphoneos/Runner.app
+```
+
+### Windows
+```bash
+flutter build windows --release
+# Output: build/windows/runner/Release/sonexa.exe
+```
+
+### Linux
+```bash
+flutter build linux --release
+# Output: build/linux/x64/release/bundle/sonexa
+```
+
+### macOS
+```bash
+flutter build macos --release
+# Output: build/macos/Build/Products/Release/Runner.app
+```
+
+</details>
 
 ## 📱 Permissions (Android)
 
