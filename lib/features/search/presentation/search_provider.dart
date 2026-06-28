@@ -36,33 +36,34 @@ class SearchResults {
         isLoading: isLoading ?? this.isLoading,
       );
 
-  bool get isEmpty => songs.isEmpty && albums.isEmpty && artists.isEmpty && playlists.isEmpty;
+  bool get isEmpty =>
+      songs.isEmpty && albums.isEmpty && artists.isEmpty && playlists.isEmpty;
 }
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+final searchNotifierProvider =
+    NotifierProvider<SearchNotifier, SearchResults>(SearchNotifier.new);
 
-final searchHistoryProvider = StateProvider<List<String>>((ref) {
-  return HiveService.getSearchHistory();
-});
+class SearchNotifier extends Notifier<SearchResults> {
+  late final SongRepository _songRepo;
+  late final AlbumRepository _albumRepo;
+  late final ArtistRepository _artistRepo;
+  late final PlaylistRepository _playlistRepo;
+  late final Debouncer _debouncer;
 
-class SearchNotifier extends StateNotifier<SearchResults> {
-  final SongRepository _songRepo;
-  final AlbumRepository _albumRepo;
-  final ArtistRepository _artistRepo;
-  final PlaylistRepository _playlistRepo;
-  final Debouncer _debouncer;
+  @override
+  SearchResults build() {
+    _songRepo = ref.read(songRepositoryProvider);
+    _albumRepo = ref.read(albumRepositoryProvider);
+    _artistRepo = ref.read(artistRepositoryProvider);
+    _playlistRepo = ref.read(playlistRepositoryProvider);
+    _debouncer = Debouncer(milliseconds: AppConstants.searchDebounceMs);
 
-  SearchNotifier({
-    required SongRepository songRepo,
-    required AlbumRepository albumRepo,
-    required ArtistRepository artistRepo,
-    required PlaylistRepository playlistRepo,
-  })  : _songRepo = songRepo,
-        _albumRepo = albumRepo,
-        _artistRepo = artistRepo,
-        _playlistRepo = playlistRepo,
-        _debouncer = Debouncer(milliseconds: AppConstants.searchDebounceMs),
-        super(const SearchResults());
+    ref.onDispose(() {
+      _debouncer.dispose();
+    });
+
+    return const SearchResults();
+  }
 
   void search(String query) {
     if (query.trim().isEmpty) {
@@ -101,7 +102,6 @@ class SearchNotifier extends StateNotifier<SearchResults> {
         albums: results[1] as List<Album>,
         artists: results[2] as List<Artist>,
         playlists: results[3] as List<Playlist>,
-        isLoading: false,
       );
       // Save to search history
       await HiveService.addSearchQuery(query);
@@ -114,20 +114,4 @@ class SearchNotifier extends StateNotifier<SearchResults> {
     state = const SearchResults();
     _debouncer.dispose();
   }
-
-  @override
-  void dispose() {
-    _debouncer.dispose();
-    super.dispose();
-  }
 }
-
-final searchNotifierProvider =
-    StateNotifierProvider<SearchNotifier, SearchResults>((ref) {
-  return SearchNotifier(
-    songRepo: ref.read(songRepositoryProvider),
-    albumRepo: ref.read(albumRepositoryProvider),
-    artistRepo: ref.read(artistRepositoryProvider),
-    playlistRepo: ref.read(playlistRepositoryProvider),
-  );
-});

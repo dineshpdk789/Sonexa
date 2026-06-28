@@ -31,8 +31,6 @@ class Formatters {
 
   /// Upgrade image URL from 150x150 to 500x500
   static String upgradeImageQuality(String url) {
-    return url
-        .replaceAll('150x150', '500x500')
-        .replaceAll('50x50', '500x500');
+    return url.replaceAll('150x150', '500x500').replaceAll('50x50', '500x500');
   }
 }

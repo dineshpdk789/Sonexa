@@ -37,26 +37,31 @@ class FullPlayerScreen extends ConsumerWidget {
           // Canvas animation overlay
           const _CanvasAnimation(),
           // Dark overlay
-          Container(color: Colors.black.withOpacity(0.45)),
+          Container(color: Colors.black.withValues(alpha: 0.45)),
           // Room Synced playback badge indicator if in group room
           if (playerState.activeRoomId != null)
             Positioned(
               top: 50,
               right: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.8),
+                  color: Colors.green.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.people_alt_rounded, color: Colors.white, size: 14),
+                    const Icon(Icons.people_alt_rounded,
+                        color: Colors.white, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       'Synced: ${playerState.activeRoomId}',
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -179,10 +184,13 @@ class _CanvasAnimationState extends ConsumerState<_CanvasAnimation> {
     _controller?.dispose();
     _controller = null;
 
-    final url = widget.videoUrl ?? 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4';
-    
+    if (widget.videoUrl == null) {
+      if (mounted) setState(() {});
+      return;
+    }
+
     _controller = VideoPlayerController.networkUrl(
-      Uri.parse(url),
+      Uri.parse(widget.videoUrl!),
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
     )..initialize().then((_) {
         _controller?.setLooping(true);
@@ -218,11 +226,14 @@ class _CanvasAnimationState extends ConsumerState<_CanvasAnimation> {
       }
     }
 
-    final showVideo = isPlaying && _controller != null && _controller!.value.isInitialized;
+    final showVideo =
+        isPlaying && _controller != null && _controller!.value.isInitialized;
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 350),
-      opacity: showVideo ? 0.35 : 0.0, // using 0.35 opacity for a subtle premium visualizer overlay
+      opacity: showVideo
+          ? 0.35
+          : 0.0, // using 0.35 opacity for a subtle premium visualizer overlay
       child: _controller == null || !_controller!.value.isInitialized
           ? const SizedBox.shrink()
           : SizedBox.expand(
@@ -293,6 +304,7 @@ class _PlayerAppBar extends ConsumerWidget {
     final playerState = ref.read(playerProvider);
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -395,8 +407,7 @@ class _AlbumArtState extends State<_AlbumArt>
             duration: const Duration(milliseconds: 300));
       } else {
         _scaleController.animateTo(0.88,
-            curve: Curves.easeOut,
-            duration: const Duration(milliseconds: 200));
+            curve: Curves.easeOut, duration: const Duration(milliseconds: 200));
       }
     }
   }
@@ -424,7 +435,7 @@ class _AlbumArtState extends State<_AlbumArt>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 30,
                 offset: const Offset(0, 12),
               ),
@@ -499,7 +510,9 @@ class _SongInfo extends ConsumerWidget {
             ref.read(playerProvider.notifier).toggleFavorite();
           },
           icon: Icon(
-            activeSong.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            activeSong.isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
             color: activeSong.isFavorite ? Colors.red : Colors.white,
             size: 28,
           ),
@@ -530,8 +543,8 @@ class _SeekBar extends ConsumerWidget {
           data: SliderTheme.of(context).copyWith(
             thumbColor: Colors.white,
             activeTrackColor: Colors.white,
-            inactiveTrackColor: Colors.white.withOpacity(0.3),
-            overlayColor: Colors.white.withOpacity(0.1),
+            inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+            overlayColor: Colors.white.withValues(alpha: 0.1),
             trackHeight: 4,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
           ),
@@ -609,7 +622,7 @@ class _PlayerControls extends ConsumerWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -678,7 +691,6 @@ class _ExtraActions extends ConsumerWidget {
         _ActionButton(
           icon: Icons.lyrics_outlined,
           label: 'Lyrics',
-          enabled: true,
           onTap: () => context.push(RouteNames.lyrics),
         ),
         _ActionButton(
@@ -741,8 +753,7 @@ class _ActionButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon,
-              color: enabled ? Colors.white : Colors.white38, size: 22),
+          Icon(icon, color: enabled ? Colors.white : Colors.white38, size: 22),
           const SizedBox(height: 4),
           Text(
             label,
@@ -787,21 +798,24 @@ void _showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                        color:
+                            colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Play Queue (${playerState.queue.length} songs)',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         if (playerState.queue.length > 1)
                           TextButton(
@@ -844,8 +858,12 @@ void _showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                           title: Text(
                             song.title,
                             style: TextStyle(
-                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                              color: isCurrent ? colorScheme.primary : colorScheme.onSurface,
+                              fontWeight: isCurrent
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isCurrent
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -854,7 +872,7 @@ void _showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                             song.artistString,
                             style: TextStyle(
                               color: isCurrent
-                                  ? colorScheme.primary.withOpacity(0.7)
+                                  ? colorScheme.primary.withValues(alpha: 0.7)
                                   : colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
@@ -864,7 +882,8 @@ void _showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (isCurrent)
-                                Icon(Icons.volume_up_rounded, color: colorScheme.primary)
+                                Icon(Icons.volume_up_rounded,
+                                    color: colorScheme.primary)
                               else
                                 ReorderableDragStartListener(
                                   index: index,
@@ -872,8 +891,11 @@ void _showQueueBottomSheet(BuildContext context, WidgetRef ref) {
                                 ),
                               const SizedBox(width: 8),
                               IconButton(
-                                icon: const Icon(Icons.remove_circle_outline_rounded, size: 20),
-                                onPressed: () => notifier.removeFromQueue(index),
+                                icon: const Icon(
+                                    Icons.remove_circle_outline_rounded,
+                                    size: 20),
+                                onPressed: () =>
+                                    notifier.removeFromQueue(index),
                               ),
                             ],
                           ),
@@ -920,8 +942,10 @@ void _showSleepTimerDialog(BuildContext context, WidgetRef ref) {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                      foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.errorContainer,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onErrorContainer,
                     ),
                     child: const Text('Cancel Timer'),
                   ),
@@ -1001,9 +1025,13 @@ void _showEqualizerDialog(BuildContext context, WidgetRef ref) {
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  enabled ? 'Equalizer Custom Settings' : 'Equalizer Disabled (Bypassed)',
+                  enabled
+                      ? 'Equalizer Custom Settings'
+                      : 'Equalizer Disabled (Bypassed)',
                   style: TextStyle(
-                    color: enabled ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                    color: enabled
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1053,7 +1081,9 @@ void _showEqualizerDialog(BuildContext context, WidgetRef ref) {
                   }),
                 ),
                 const SizedBox(height: 16),
-                const Text('Presets:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('Presets:',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -1130,8 +1160,11 @@ void showListenTogetherDialog(BuildContext context, WidgetRef ref) {
               children: [
                 if (roomId != null) ...[
                   Text(
-                    isHost ? 'Hosting Session Room' : 'Connected to Session Room',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    isHost
+                        ? 'Hosting Session Room'
+                        : 'Connected to Session Room',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 13),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -1143,7 +1176,8 @@ void showListenTogetherDialog(BuildContext context, WidgetRef ref) {
                     ),
                     child: Column(
                       children: [
-                        const Text('ROOM CODE', style: TextStyle(fontSize: 10, letterSpacing: 1.5)),
+                        const Text('ROOM CODE',
+                            style: TextStyle(fontSize: 10, letterSpacing: 1.5)),
                         Text(
                           roomId,
                           style: TextStyle(
@@ -1168,7 +1202,8 @@ void showListenTogetherDialog(BuildContext context, WidgetRef ref) {
                       notifier.leaveRoom();
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Left the Listen Together session.')),
+                        const SnackBar(
+                            content: Text('Left the Listen Together session.')),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -1188,24 +1223,31 @@ void showListenTogetherDialog(BuildContext context, WidgetRef ref) {
                     onPressed: () {
                       final random = math.Random();
                       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                      final code = List.generate(6, (index) => chars[random.nextInt(chars.length)]).join();
+                      final code = List.generate(
+                              6, (index) => chars[random.nextInt(chars.length)])
+                          .join();
                       notifier.setRoom(code, true);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Room $code created successfully! Share it with friends.')),
+                        SnackBar(
+                            content: Text(
+                                'Room $code created successfully! Share it with friends.')),
                       );
                     },
                     child: const Text('Host a Group Room'),
                   ),
                   const SizedBox(height: 12),
-                  const Center(child: Text('OR', style: TextStyle(fontSize: 11, color: Colors.grey))),
+                  const Center(
+                      child: Text('OR',
+                          style: TextStyle(fontSize: 11, color: Colors.grey))),
                   const SizedBox(height: 12),
                   TextField(
                     controller: controller,
                     decoration: const InputDecoration(
                       hintText: 'Enter 6-digit room code',
                       labelText: 'Join Room',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     maxLength: 6,
                     textCapitalization: TextCapitalization.characters,
@@ -1218,11 +1260,15 @@ void showListenTogetherDialog(BuildContext context, WidgetRef ref) {
                         notifier.setRoom(code, false);
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Successfully joined room $code! Playback will sync.')),
+                          SnackBar(
+                              content: Text(
+                                  'Successfully joined room $code! Playback will sync.')),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter a valid 6-digit room code.')),
+                          const SnackBar(
+                              content: Text(
+                                  'Please enter a valid 6-digit room code.')),
                         );
                       }
                     },

@@ -66,7 +66,8 @@ class EchoPlayerState {
     bool clearRoom = false,
   }) =>
       EchoPlayerState(
-        currentSong: clearCurrentSong ? null : (currentSong ?? this.currentSong),
+        currentSong:
+            clearCurrentSong ? null : (currentSong ?? this.currentSong),
         queue: queue ?? this.queue,
         currentIndex: currentIndex ?? this.currentIndex,
         isPlaying: isPlaying ?? this.isPlaying,
@@ -76,7 +77,9 @@ class EchoPlayerState {
         shuffleEnabled: shuffleEnabled ?? this.shuffleEnabled,
         loopMode: loopMode ?? this.loopMode,
         volume: volume ?? this.volume,
-        sleepTimerRemaining: clearSleepTimer ? null : (sleepTimerRemaining ?? this.sleepTimerRemaining),
+        sleepTimerRemaining: clearSleepTimer
+            ? null
+            : (sleepTimerRemaining ?? this.sleepTimerRemaining),
         equalizerBands: equalizerBands ?? this.equalizerBands,
         equalizerEnabled: equalizerEnabled ?? this.equalizerEnabled,
         activeRoomId: clearRoom ? null : (activeRoomId ?? this.activeRoomId),
@@ -92,13 +95,33 @@ class EchoPlayerState {
 
 // ── Notifier ──────────────────────────────────────────────────────────────────
 
-class PlayerNotifier extends StateNotifier<EchoPlayerState> {
-  final AudioPlayerService _service;
-  final List<StreamSubscription> _subscriptions = [];
+class PlayerNotifier extends Notifier<EchoPlayerState> {
+  late final AudioPlayerService _service;
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
   Timer? _sleepTimer;
 
-  PlayerNotifier(this._service) : super(const EchoPlayerState()) {
+  @override
+  EchoPlayerState build() {
+    _service = AudioPlayerService.instance;
     listenToStreams();
+
+    ref.onDispose(() {
+      _sleepTimer?.cancel();
+      for (final sub in _subscriptions) {
+        sub.cancel();
+      }
+    });
+
+    return const EchoPlayerState();
+  }
+
+  @override
+  set state(EchoPlayerState value) {
+    final prev = state;
+    super.state = value;
+    if (value.currentSong != null && prev.currentSong?.id != value.currentSong?.id) {
+      ref.read(echoBrainServiceProvider).checkAndInject(value, this);
+    }
   }
 
   void listenToStreams() {
@@ -295,7 +318,7 @@ class PlayerNotifier extends StateNotifier<EchoPlayerState> {
   Future<void> toggleFavorite() async {
     final song = state.currentSong;
     if (song == null) return;
-    
+
     final isFav = HiveService.isFavorite(song.id);
     if (isFav) {
       await HiveService.removeFavorite(song.id);
@@ -304,7 +327,7 @@ class PlayerNotifier extends StateNotifier<EchoPlayerState> {
       await HiveService.addFavorite(song);
       song.isFavorite = true;
     }
-    
+
     state = state.copyWith(
       currentSong: song.copyWith(isFavorite: !isFav),
       // Update song object inside the queue as well
@@ -327,25 +350,9 @@ class PlayerNotifier extends StateNotifier<EchoPlayerState> {
     state = state.copyWith(clearRoom: true);
   }
 
-  @override
-  void dispose() {
-    _sleepTimer?.cancel();
-    for (final sub in _subscriptions) {
-      sub.cancel();
-    }
-    super.dispose();
-  }
 }
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 
-final playerProvider =
-    StateNotifierProvider<PlayerNotifier, EchoPlayerState>((ref) {
-  final notifier = PlayerNotifier(AudioPlayerService.instance);
-  ref.listenSelf((previous, next) {
-    if (next.currentSong != null) {
-      ref.read(echoBrainServiceProvider).checkAndInject(next, notifier);
-    }
-  });
-  return notifier;
-});
+final playerProvider = NotifierProvider<PlayerNotifier, EchoPlayerState>(PlayerNotifier.new);
+

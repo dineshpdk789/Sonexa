@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,13 +11,12 @@ import 'package:path_provider/path_provider.dart';
 // ── State Providers ──────────────────────────────────────────────────────────
 
 final downloadedSongsProvider =
-    StateNotifierProvider<DownloadedSongsNotifier, List<Song>>((ref) {
-  return DownloadedSongsNotifier();
-});
+    NotifierProvider<DownloadedSongsNotifier, List<Song>>(DownloadedSongsNotifier.new);
 
-class DownloadedSongsNotifier extends StateNotifier<List<Song>> {
-  DownloadedSongsNotifier() : super([]) {
-    load();
+class DownloadedSongsNotifier extends Notifier<List<Song>> {
+  @override
+  List<Song> build() {
+    return HiveService.getDownloads();
   }
 
   void load() {
@@ -38,7 +38,8 @@ class DownloadedSongsNotifier extends StateNotifier<List<Song>> {
   }
 }
 
-final activeTasksProvider = StreamProvider<List<Map<String, dynamic>>>((ref) async* {
+final activeTasksProvider =
+    StreamProvider<List<Map<String, dynamic>>>((ref) async* {
   bool running = true;
   ref.onDispose(() => running = false);
   while (running) {
@@ -56,7 +57,8 @@ final storageInfoProvider = FutureProvider<Map<String, double>>((ref) async {
     final downloadsDir = Directory('${docDir.path}/echo_music_downloads');
     double totalBytes = 0;
     if (await downloadsDir.exists()) {
-      await for (final file in downloadsDir.list(recursive: true, followLinks: false)) {
+      await for (final file
+          in downloadsDir.list(recursive: true, followLinks: false)) {
         if (file is File) {
           totalBytes += await file.length();
         }
@@ -111,9 +113,9 @@ class DownloadsScreen extends ConsumerWidget {
                 margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: cs.primaryContainer.withOpacity(0.35),
+                  color: cs.primaryContainer.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: cs.primary.withOpacity(0.1)),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.1)),
                 ),
                 child: Row(
                   children: [
@@ -128,13 +130,19 @@ class DownloadsScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 'Storage Consumption',
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                     ),
                               ),
                               Text(
                                 '${used.toStringAsFixed(1)} MB used',
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
                                       color: cs.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -147,7 +155,8 @@ class DownloadsScreen extends ConsumerWidget {
                             child: LinearProgressIndicator(
                               value: progress,
                               minHeight: 6,
-                              backgroundColor: cs.onPrimaryContainer.withOpacity(0.12),
+                              backgroundColor:
+                                  cs.onPrimaryContainer.withValues(alpha: 0.12),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -176,7 +185,8 @@ class DownloadsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 4),
                       child: Text(
                         'DOWNLOADING (${tasks.length})',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -192,14 +202,17 @@ class DownloadsScreen extends ConsumerWidget {
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
                         final task = tasks[index];
-                        final songMap = Map<String, dynamic>.from(task['song'] as Map);
+                        final songMap =
+                            Map<String, dynamic>.from(task['song'] as Map);
                         final song = Song.fromJson(songMap);
                         final progress = task['progress'] as double? ?? 0.0;
                         final status = task['status'] as String? ?? 'queued';
 
                         return ListTile(
-                          leading: const CircularProgressIndicator(strokeWidth: 3),
-                          title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          leading:
+                              const CircularProgressIndicator(strokeWidth: 3),
+                          title: Text(song.title,
+                              maxLines: 1, overflow: TextOverflow.ellipsis),
                           subtitle: Text(
                             '${(progress * 100).toInt()}% • ${status.toUpperCase()}',
                             style: const TextStyle(fontSize: 12),
@@ -207,7 +220,9 @@ class DownloadsScreen extends ConsumerWidget {
                           trailing: IconButton(
                             icon: const Icon(Icons.cancel_outlined),
                             onPressed: () {
-                              ref.read(downloadServiceProvider).cancelDownload(song.id);
+                              ref
+                                  .read(downloadServiceProvider)
+                                  .cancelDownload(song.id);
                               ref.invalidate(activeTasksProvider);
                             },
                           ),
@@ -234,7 +249,7 @@ class DownloadsScreen extends ConsumerWidget {
                           width: 88,
                           height: 88,
                           decoration: BoxDecoration(
-                            color: cs.primaryContainer.withOpacity(0.4),
+                            color: cs.primaryContainer.withValues(alpha: 0.4),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -246,9 +261,10 @@ class DownloadsScreen extends ConsumerWidget {
                         const SizedBox(height: 24),
                         Text(
                           'No Downloads Yet',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -292,20 +308,26 @@ class DownloadsScreen extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              color: Colors.red),
                           onPressed: () {
-                            ref.read(downloadedSongsProvider.notifier).deleteDownload(song);
+                            ref
+                                .read(downloadedSongsProvider.notifier)
+                                .deleteDownload(song);
                             ref.invalidate(storageInfoProvider);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Deleted "${song.title}" from local storage.'),
+                                content: Text(
+                                    'Deleted "${song.title}" from local storage.'),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
                           },
                         ),
                         onTap: () {
-                          ref.read(playerProvider.notifier).playSong(song, queue: downloads);
+                          ref
+                              .read(playerProvider.notifier)
+                              .playSong(song, queue: downloads);
                         },
                       );
                     },

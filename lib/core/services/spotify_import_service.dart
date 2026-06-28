@@ -20,7 +20,8 @@ class SpotifyImportService {
     // Create new playlist container
     await HiveService.createPlaylist(newPlaylistName);
     final playlists = HiveService.getPlaylists();
-    final newPlaylist = playlists.firstWhere((p) => p.name == newPlaylistName, orElse: () => playlists.last);
+    final newPlaylist = playlists.firstWhere((p) => p.name == newPlaylistName,
+        orElse: () => playlists.last);
 
     // Mock Spotify tracks list extracted from parsing URL link
     final mockSpotifyTracks = [
@@ -42,7 +43,8 @@ class SpotifyImportService {
       } catch (_) {}
       processed++;
       onProgress?.call(processed / mockSpotifyTracks.length);
-      await Future.delayed(const Duration(milliseconds: 500)); // Rate limit pause
+      await Future.delayed(
+          const Duration(milliseconds: 500)); // Rate limit pause
     }
     onComplete?.call();
   }

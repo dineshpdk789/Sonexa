@@ -55,14 +55,20 @@ class AlbumDto {
 
   static List<Map<String, dynamic>> _parseImageList(dynamic val) {
     if (val is List) {
-      return val.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      return val
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
     }
     return [];
   }
 
   static List<Map<String, dynamic>> _parseSongsList(dynamic val) {
     if (val is List) {
-      return val.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      return val
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
     }
     return [];
   }
@@ -70,7 +76,8 @@ class AlbumDto {
   factory AlbumDto.fromJson(Map<String, dynamic> json) {
     return AlbumDto(
       id: json['id'] as String? ?? '',
-      name: Formatters.decodeHtmlEntities((json['name'] ?? json['title']) as String? ?? ''),
+      name: Formatters.decodeHtmlEntities(
+          (json['name'] ?? json['title']) as String? ?? ''),
       year: json['year']?.toString(),
       artists: _parseArtists(json['artists'] ?? json['artist']),
       image: _parseImageList(json['image']),
@@ -81,8 +88,7 @@ class AlbumDto {
 
   String get _bestImage {
     if (image.isEmpty) return '';
-    return Formatters.upgradeImageQuality(
-        image.last['url'] as String? ?? '');
+    return Formatters.upgradeImageQuality(image.last['url'] as String? ?? '');
   }
 
   Album toEntity() => Album(
@@ -127,8 +133,7 @@ class ArtistDto {
 
   String get _bestImage {
     if (image.isEmpty) return '';
-    return Formatters.upgradeImageQuality(
-        image.last['url'] as String? ?? '');
+    return Formatters.upgradeImageQuality(image.last['url'] as String? ?? '');
   }
 
   Artist toEntity() => Artist(
@@ -170,8 +175,7 @@ class PlaylistDto {
 
   String get _bestImage {
     if (image.isEmpty) return '';
-    return Formatters.upgradeImageQuality(
-        image.last['url'] as String? ?? '');
+    return Formatters.upgradeImageQuality(image.last['url'] as String? ?? '');
   }
 
   Playlist toEntity() => Playlist(
