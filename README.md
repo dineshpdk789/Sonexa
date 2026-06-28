@@ -7,7 +7,7 @@ A premium cross-platform Flutter music streaming app built from scratch with Cle
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux-brightgreen)
 
-## ✨ Features   ddd
+## ✨ Features 
 
 ### 🎵 Music Discovery
 - **Home Screen** — Trending songs, New Releases, Featured Albums, Popular Artists
