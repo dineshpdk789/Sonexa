@@ -26,13 +26,8 @@ class ScaffoldWithNav extends ConsumerWidget {
       body: Stack(
         children: [
           child,
-          // Mini player floating above nav bar
-          const Positioned(
-            left: 12,
-            right: 12,
-            bottom: 84,
-            child: MiniPlayerWidget(),
-          ),
+          // Movable mini player floating above nav bar
+          const _DraggableMiniPlayer(),
           // Floating Pill Navigation Bar
           Positioned(
             left: 12,
@@ -267,6 +262,50 @@ class _FloatingNavBar extends StatelessWidget {
           Icons.mic_rounded,
           color: Colors.white,
           size: 22,
+        ),
+      ),
+    );
+  }
+}
+
+class _DraggableMiniPlayer extends StatefulWidget {
+  const _DraggableMiniPlayer();
+
+  @override
+  State<_DraggableMiniPlayer> createState() => _DraggableMiniPlayerState();
+}
+
+class _DraggableMiniPlayerState extends State<_DraggableMiniPlayer> {
+  Offset? _offset;
+
+  @override
+  Widget build(BuildContext context) {
+    // Default position at bottom, above nav bar
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final defaultOffset = Offset(12, screenHeight - 160); 
+
+    final currentOffset = _offset ?? defaultOffset;
+
+    return Positioned(
+      left: currentOffset.dx,
+      top: currentOffset.dy,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            double dx = currentOffset.dx + details.delta.dx;
+            double dy = currentOffset.dy + details.delta.dy;
+
+            // Clamp to screen edges
+            dx = dx.clamp(0.0, screenWidth - 100.0);
+            dy = dy.clamp(50.0, screenHeight - 140.0);
+
+            _offset = Offset(dx, dy);
+          });
+        },
+        child: SizedBox(
+          width: screenWidth - 24, // keep it wide by default
+          child: const MiniPlayerWidget(),
         ),
       ),
     );

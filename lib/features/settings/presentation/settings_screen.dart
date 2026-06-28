@@ -4,6 +4,7 @@ import 'package:sonexa/shared/providers/theme_provider.dart';
 import 'package:sonexa/shared/providers/settings_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 // Provider to fetch paths asynchronously
 final appDirectoriesProvider = FutureProvider<Map<String, String>>((ref) async {
@@ -38,7 +39,8 @@ class SettingsScreen extends ConsumerWidget {
 
     String formatLocationSub(String loc) {
       if (loc == 'internal') return 'Internal Storage';
-      return 'Cache Storage';
+      if (loc == 'cache') return 'Cache Storage';
+      return 'Custom Folder';
     }
 
     return Scaffold(
@@ -169,9 +171,14 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Download Location'),
             subtitle: dirsAsync.when(
               data: (dirs) {
-                final path = downloadLocation == 'internal'
-                    ? dirs['internal']
-                    : dirs['cache'];
+                String path;
+                if (downloadLocation == 'internal') {
+                  path = dirs['internal']!;
+                } else if (downloadLocation == 'cache') {
+                  path = dirs['cache']!;
+                } else {
+                  path = downloadLocation;
+                }
                 return Text(
                   '${formatLocationSub(downloadLocation)}\n$path',
                   maxLines: 2,
@@ -227,104 +234,104 @@ class SettingsScreen extends ConsumerWidget {
 
   void _showQualityPicker(
       BuildContext context, WidgetRef ref, String currentVal, bool isDownload) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (sheetContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              isDownload ? 'Download Quality' : 'Streaming Quality',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(isDownload ? 'Download Quality' : 'Streaming Quality'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...['96kbps', '160kbps', '320kbps'].map(
+              (q) => ListTile(
+                title: Text(q.replaceAll('kbps', ' kbps')),
+                trailing: q == currentVal ? const Icon(Icons.check_rounded) : null,
+                onTap: () {
+                  if (isDownload) {
+                    ref.read(downloadQualityProvider.notifier).setQuality(q);
+                  } else {
+                    ref.read(streamingQualityProvider.notifier).setQuality(q);
+                  }
+                  Navigator.pop(dialogContext);
+                },
+              ),
             ),
-          ),
-          ...['96kbps', '160kbps', '320kbps'].map(
-            (q) => ListTile(
-              title: Text(q.replaceAll('kbps', ' kbps')),
-              trailing: q == currentVal ? const Icon(Icons.check_rounded) : null,
-              onTap: () {
-                if (isDownload) {
-                  ref.read(downloadQualityProvider.notifier).setQuality(q);
-                } else {
-                  ref.read(streamingQualityProvider.notifier).setQuality(q);
-                }
-                Navigator.pop(sheetContext);
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void _showDownloadLocationPicker(
       BuildContext context, WidgetRef ref, String currentVal) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (sheetContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Choose Download Location',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose Download Location'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.phone_android_rounded),
+              title: const Text('Internal Storage'),
+              subtitle: const Text('App documents folder'),
+              trailing: currentVal == 'internal' ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                ref.read(downloadLocationProvider.notifier).setLocation('internal');
+                Navigator.pop(dialogContext);
+              },
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.phone_android_rounded),
-            title: const Text('Internal Storage'),
-            subtitle: const Text('App documents folder (Persisted)'),
-            trailing: currentVal == 'internal' ? const Icon(Icons.check_rounded) : null,
-            onTap: () {
-              ref.read(downloadLocationProvider.notifier).setLocation('internal');
-              Navigator.pop(sheetContext);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.sd_storage_rounded),
-            title: const Text('Cache Storage'),
-            subtitle: const Text('App cache folder (May be cleared by OS)'),
-            trailing: currentVal == 'cache' ? const Icon(Icons.check_rounded) : null,
-            onTap: () {
-              ref.read(downloadLocationProvider.notifier).setLocation('cache');
-              Navigator.pop(sheetContext);
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
+            ListTile(
+              leading: const Icon(Icons.sd_storage_rounded),
+              title: const Text('Cache Storage'),
+              subtitle: const Text('App cache folder'),
+              trailing: currentVal == 'cache' ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                ref.read(downloadLocationProvider.notifier).setLocation('cache');
+                Navigator.pop(dialogContext);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_open_rounded),
+              title: const Text('Custom Folder'),
+              subtitle: const Text('Choose from file manager'),
+              trailing: (currentVal != 'internal' && currentVal != 'cache')
+                  ? const Icon(Icons.check_rounded)
+                  : null,
+              onTap: () async {
+                Navigator.pop(dialogContext);
+                final result = await FilePicker.getDirectoryPath();
+                if (result != null) {
+                  ref.read(downloadLocationProvider.notifier).setLocation(result);
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showAccentColorPicker(BuildContext context, WidgetRef ref, String currentVal) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (sheetContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Choose Accent Theme Color',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose Accent Color'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...['Purple', 'Blue', 'Green', 'Orange'].map(
+              (c) => ListTile(
+                leading: Icon(Icons.lens, color: _getColorFromValue(c)),
+                title: Text(c),
+                trailing: c == currentVal ? const Icon(Icons.check_rounded) : null,
+                onTap: () {
+                  ref.read(accentColorProvider.notifier).setColor(c);
+                  Navigator.pop(dialogContext);
+                },
+              ),
             ),
-          ),
-          ...['Purple', 'Blue', 'Green', 'Orange'].map(
-            (c) => ListTile(
-              leading: Icon(Icons.lens, color: _getColorFromValue(c)),
-              title: Text(c),
-              trailing: c == currentVal ? const Icon(Icons.check_rounded) : null,
-              onTap: () {
-                ref.read(accentColorProvider.notifier).setColor(c);
-                Navigator.pop(sheetContext);
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -343,30 +350,25 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   void _showDensityPicker(BuildContext context, WidgetRef ref, String currentVal) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (sheetContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Choose UI Density Spacing',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose UI Density'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...['Compact', 'Medium', 'Relaxed'].map(
+              (d) => ListTile(
+                title: Text(d),
+                trailing: d == currentVal ? const Icon(Icons.check_rounded) : null,
+                onTap: () {
+                  ref.read(uiDensityProvider.notifier).setDensity(d);
+                  Navigator.pop(dialogContext);
+                },
+              ),
             ),
-          ),
-          ...['Compact', 'Medium', 'Relaxed'].map(
-            (d) => ListTile(
-              title: Text(d),
-              trailing: d == currentVal ? const Icon(Icons.check_rounded) : null,
-              onTap: () {
-                ref.read(uiDensityProvider.notifier).setDensity(d);
-                Navigator.pop(sheetContext);
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -564,31 +566,28 @@ class _ThemeTile extends StatelessWidget {
   }
 
   void _showThemePicker(BuildContext context) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (sheetContext) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Choose Theme',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ),
-          ...AppThemeMode.values.map(
-            (mode) => ListTile(
-              leading: Icon(_modeIcon(mode)),
-              title: Text(_modeName(mode)),
-              trailing: currentMode == mode
-                  ? const Icon(Icons.check_rounded)
-                  : null,
-              onTap: () {
-                ref.read(themeModeProvider.notifier).setMode(mode);
-                Navigator.pop(sheetContext);
-              },
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...AppThemeMode.values.map(
+              (mode) => ListTile(
+                leading: Icon(_modeIcon(mode)),
+                title: Text(_modeName(mode)),
+                trailing: currentMode == mode
+                    ? const Icon(Icons.check_rounded)
+                    : null,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).setMode(mode);
+                  Navigator.pop(dialogContext);
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+          ],
+        ),
       ),
     );
   }

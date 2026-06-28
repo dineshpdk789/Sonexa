@@ -81,13 +81,19 @@ class MiniPlayerWidget extends ConsumerWidget {
                               width: 42,
                               height: 42,
                               color: cs.surfaceContainerHighest,
-                              child: const Icon(Icons.music_note, size: 18),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset('assets/images/sonexa_logo.png'),
+                              ),
                             ),
                             errorWidget: (_, __, ___) => Container(
                               width: 42,
                               height: 42,
                               color: cs.surfaceContainerHighest,
-                              child: const Icon(Icons.music_note, size: 18),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset('assets/images/sonexa_logo.png'),
+                              ),
                             ),
                           ),
                         ),

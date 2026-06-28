@@ -179,10 +179,13 @@ class _CanvasAnimationState extends ConsumerState<_CanvasAnimation> {
     _controller?.dispose();
     _controller = null;
 
-    final url = widget.videoUrl ?? 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4';
-    
+    if (widget.videoUrl == null) {
+      if (mounted) setState(() {});
+      return;
+    }
+
     _controller = VideoPlayerController.networkUrl(
-      Uri.parse(url),
+      Uri.parse(widget.videoUrl!),
       videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
     )..initialize().then((_) {
         _controller?.setLooping(true);

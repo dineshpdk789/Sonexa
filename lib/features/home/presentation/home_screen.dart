@@ -19,170 +19,175 @@ class HomeScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Redesigned premium SliverAppBar
-          SliverAppBar(
-            expandedHeight: 160,
-            floating: true,
-            pinned: true,
-            snap: false,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            elevation: 0,
-            scrolledUnderElevation: 2,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      cs.primary.withOpacity(0.08),
-                      cs.tertiary.withOpacity(0.03),
-                      Colors.transparent,
-                    ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          return ref.refresh(homeProvider.future);
+        },
+        child: CustomScrollView(
+          slivers: [
+            // Redesigned premium SliverAppBar
+            SliverAppBar(
+              expandedHeight: 160,
+              floating: true,
+              pinned: true,
+              snap: false,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              scrolledUnderElevation: 2,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        cs.primary.withOpacity(0.08),
+                        cs.tertiary.withOpacity(0.03),
+                        Colors.transparent,
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/sonexa_logo.png',
-                    height: 28,
-                    width: 28,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'SONEXA',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: cs.primary,
-                          letterSpacing: -0.5,
-                        ),
-                  ),
-                ],
-              ),
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 62),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.history_rounded),
-                tooltip: 'Listening History',
-                onPressed: () {
-                  context.push(RouteNames.library);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.insights_rounded),
-                tooltip: 'Insights & Charts',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Insights: Analysing your music profile...'),
-                      behavior: SnackBarBehavior.floating,
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/sonexa_logo.png',
+                      height: 28,
+                      width: 28,
+                      fit: BoxFit.contain,
                     ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.people_outline_rounded),
-                tooltip: 'Listen Together',
-                onPressed: () {
-                  showListenTogetherDialog(context, ref);
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings_rounded),
-                tooltip: 'Settings',
-                onPressed: () {
-                  context.push(RouteNames.settings);
-                },
-              ),
-              const SizedBox(width: 8),
-            ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(48),
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.only(bottom: 8),
-                alignment: Alignment.centerLeft,
-                child: Consumer(
-                  builder: (context, ref, _) {
-                    final selectedCategory = ref.watch(selectedCategoryProvider);
-                    final categories = ['Romance', 'Workout', 'Feel good', 'Party'];
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: categories.length,
-                      itemBuilder: (context, idx) {
-                        final cat = categories[idx];
-                        final isSelected = selectedCategory == cat;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(cat),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              ref.read(selectedCategoryProvider.notifier).state =
-                                  selected ? cat : '';
-                            },
-                            showCheckmark: false,
-                            labelStyle: TextStyle(
-                              color: isSelected ? cs.onPrimary : cs.onSurface,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            selectedColor: cs.primary,
-                            backgroundColor: cs.surfaceContainerHigh,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: isSelected ? cs.primary : cs.outlineVariant,
-                                width: 0.5,
-                              ),
-                            ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'SONEXA',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: cs.primary,
+                            letterSpacing: -0.5,
                           ),
-                        );
-                      },
+                    ),
+                  ],
+                ),
+                titlePadding: const EdgeInsets.only(left: 20, bottom: 62),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.history_rounded),
+                  tooltip: 'Listening History',
+                  onPressed: () {
+                    context.push(RouteNames.library);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.insights_rounded),
+                  tooltip: 'Insights & Charts',
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Insights: Analysing your music profile...'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
                     );
                   },
                 ),
-              ),
-            ),
-          ),
-          homeAsync.when(
-            data: (data) {
-              if (data.trending.isEmpty &&
-                  data.newReleases.isEmpty &&
-                  data.featuredAlbums.isEmpty &&
-                  data.featuredArtists.isEmpty) {
-                return SliverToBoxAdapter(
-                  child: _ErrorSection(
-                    message: 'No music content found. Please check your internet connection.',
-                    onRetry: () => ref.refresh(homeProvider),
+                IconButton(
+                  icon: const Icon(Icons.people_outline_rounded),
+                  tooltip: 'Listen Together',
+                  onPressed: () {
+                    showListenTogetherDialog(context, ref);
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_rounded),
+                  tooltip: 'Settings',
+                  onPressed: () {
+                    context.push(RouteNames.settings);
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(48),
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  alignment: Alignment.centerLeft,
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final selectedCategory = ref.watch(selectedCategoryProvider);
+                      final categories = ['Romance', 'Workout', 'Feel good', 'Party'];
+                      return ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: categories.length,
+                        itemBuilder: (context, idx) {
+                          final cat = categories[idx];
+                          final isSelected = selectedCategory == cat;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(cat),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                ref.read(selectedCategoryProvider.notifier).state =
+                                    selected ? cat : '';
+                              },
+                              showCheckmark: false,
+                              labelStyle: TextStyle(
+                                color: isSelected ? cs.onPrimary : cs.onSurface,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              selectedColor: cs.primary,
+                              backgroundColor: cs.surfaceContainerHigh,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: isSelected ? cs.primary : cs.outlineVariant,
+                                  width: 0.5,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                );
-              }
-              return SliverList(
-                delegate: SliverChildListDelegate([
-                  _HomeContent(data: data),
-                ]),
-              );
-            },
-            loading: () => const SliverToBoxAdapter(child: HomeShimmer()),
-            error: (e, _) => SliverToBoxAdapter(
-              child: _ErrorSection(
-                message: e.toString(),
-                onRetry: () => ref.refresh(homeProvider),
+                ),
               ),
             ),
-          ),
-          // Bottom padding for mini player + nav bar
-          const SliverToBoxAdapter(child: SizedBox(height: 160)),
-        ],
+            homeAsync.when(
+              data: (data) {
+                if (data.trending.isEmpty &&
+                    data.newReleases.isEmpty &&
+                    data.featuredAlbums.isEmpty &&
+                    data.featuredArtists.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: _ErrorSection(
+                      message: 'No music content found. Please check your internet connection.',
+                      onRetry: () => ref.refresh(homeProvider),
+                    ),
+                  );
+                }
+                return SliverList(
+                  delegate: SliverChildListDelegate([
+                    _HomeContent(data: data),
+                  ]),
+                );
+              },
+              loading: () => const SliverToBoxAdapter(child: HomeShimmer()),
+              error: (e, _) => SliverToBoxAdapter(
+                child: _ErrorSection(
+                  message: e.toString(),
+                  onRetry: () => ref.refresh(homeProvider),
+                ),
+              ),
+            ),
+            // Bottom padding for mini player + nav bar
+            const SliverToBoxAdapter(child: SizedBox(height: 160)),
+          ],
+        ),
       ),
     );
   }
@@ -199,6 +204,11 @@ class _HomeContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (data.echoBrain.isNotEmpty) ...[
+          _SectionHeader(title: '🧠 Echo Brain Recommends'),
+          _HorizontalSongList(songs: data.echoBrain, ref: ref),
+          const SizedBox(height: 24),
+        ],
         if (history.isNotEmpty) ...[
           _SectionHeader(title: '⏰ Recently Played'),
           _HorizontalSongList(songs: history, ref: ref),
@@ -213,11 +223,6 @@ class _HomeContent extends ConsumerWidget {
         if (data.trending.isNotEmpty) ...[
           _SectionHeader(title: '⚡ Speed Dial (Trending)'),
           _SpeedDialGrid(songs: data.trending.take(6).toList(), ref: ref),
-          const SizedBox(height: 24),
-        ],
-        if (data.echoBrain.isNotEmpty) ...[
-          _SectionHeader(title: '🧠 Echo Brain Recommends'),
-          _HorizontalSongList(songs: data.echoBrain, ref: ref),
           const SizedBox(height: 24),
         ],
         if (data.moods.isNotEmpty) ...[

@@ -175,10 +175,13 @@ class SongCard extends StatelessWidget {
         color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(size < 80 ? 8 : 14),
       ),
-      child: Icon(
-        Icons.music_note_rounded,
-        color: cs.onSurfaceVariant.withOpacity(0.5),
-        size: size * 0.35,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Image.asset(
+          'assets/images/sonexa_logo.png',
+          color: cs.onSurfaceVariant.withOpacity(0.3),
+          colorBlendMode: BlendMode.srcIn,
+        ),
       ),
     );
   }
@@ -225,13 +228,19 @@ class AlbumCard extends ConsumerWidget {
                     width: 120,
                     height: 160,
                     color: cs.surfaceContainerHighest,
-                    child: const Icon(Icons.album_rounded, size: 36),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Image.asset('assets/images/sonexa_logo.png'),
+                    ),
                   ),
                   errorWidget: (_, __, ___) => Container(
                     width: 120,
                     height: 160,
                     color: cs.surfaceContainerHighest,
-                    child: const Icon(Icons.album_rounded, size: 36),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Image.asset('assets/images/sonexa_logo.png'),
+                    ),
                   ),
                 ),
               ),
@@ -293,15 +302,13 @@ class ArtistCard extends ConsumerWidget {
                     width: 100,
                     height: 100,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Icon(
-                      Icons.person_rounded,
-                      size: 40,
-                      color: cs.onSurfaceVariant,
+                    placeholder: (_, __) => Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset('assets/images/sonexa_logo.png'),
                     ),
-                    errorWidget: (_, __, ___) => Icon(
-                      Icons.person_rounded,
-                      size: 40,
-                      color: cs.onSurfaceVariant,
+                    errorWidget: (_, __, ___) => Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Image.asset('assets/images/sonexa_logo.png'),
                     ),
                   ),
                 ),
@@ -361,13 +368,19 @@ class PlaylistCard extends ConsumerWidget {
                   width: 140,
                   height: 140,
                   color: cs.surfaceContainerHighest,
-                  child: const Icon(Icons.playlist_play_rounded, size: 40),
+                  child: Padding(
+                    padding: const EdgeInsets.all(28.0),
+                    child: Image.asset('assets/images/sonexa_logo.png'),
+                  ),
                 ),
                 errorWidget: (_, __, ___) => Container(
                   width: 140,
                   height: 140,
                   color: cs.surfaceContainerHighest,
-                  child: const Icon(Icons.playlist_play_rounded, size: 40),
+                  child: Padding(
+                    padding: const EdgeInsets.all(28.0),
+                    child: Image.asset('assets/images/sonexa_logo.png'),
+                  ),
                 ),
               ),
             ),

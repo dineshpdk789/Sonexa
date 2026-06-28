@@ -96,7 +96,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: cs.surfaceContainerHighest.withOpacity(0.5),
+        color: cs.surfaceContainerHighest.withOpacity(0.3),
       ),
       // Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
@@ -120,11 +120,18 @@ class AppTheme {
       ),
       // Bottom Sheet
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: cs.surface,
-        modalBackgroundColor: cs.surface,
+        backgroundColor: cs.surface.withOpacity(0.85),
+        modalBackgroundColor: cs.surface.withOpacity(0.85),
+        elevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
+      ),
+      // Dialog
+      dialogTheme: DialogThemeData(
+        backgroundColor: cs.surface.withOpacity(0.85),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
