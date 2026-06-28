@@ -2,7 +2,7 @@ class ApiConstants {
   ApiConstants._();
 
   // JioSaavn public API (saavn.echomusic.fun)
-  static const String jiosaavnBaseUrl = 'https://saavn.echomusic.fun/api';
+  static const String jiosaavnBaseUrl = 'https://saavn.me';
 
   // Endpoints
   static const String searchSongs = '/search/songs';

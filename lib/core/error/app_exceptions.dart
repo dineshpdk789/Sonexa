@@ -26,5 +26,6 @@ class NotFoundException extends AppException {
 }
 
 class UnknownException extends AppException {
-  const UnknownException({super.message = 'An unexpected error occurred', super.code});
+  const UnknownException(
+      {super.message = 'An unexpected error occurred', super.code});
 }

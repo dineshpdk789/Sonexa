@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sonexa/core/storage/hive_service.dart';
@@ -9,13 +10,12 @@ import 'package:sonexa/core/services/spotify_import_service.dart';
 // ── Providers ─────────────────────────────────────────────────────────────────
 
 final likedSongsProvider =
-    StateNotifierProvider<LikedSongsNotifier, List<Song>>((ref) {
-  return LikedSongsNotifier();
-});
+    NotifierProvider<LikedSongsNotifier, List<Song>>(LikedSongsNotifier.new);
 
-class LikedSongsNotifier extends StateNotifier<List<Song>> {
-  LikedSongsNotifier() : super([]) {
-    load();
+class LikedSongsNotifier extends Notifier<List<Song>> {
+  @override
+  List<Song> build() {
+    return HiveService.getFavorites();
   }
 
   void load() {
@@ -24,13 +24,12 @@ class LikedSongsNotifier extends StateNotifier<List<Song>> {
 }
 
 final historySongsProvider =
-    StateNotifierProvider<HistorySongsNotifier, List<Song>>((ref) {
-  return HistorySongsNotifier();
-});
+    NotifierProvider<HistorySongsNotifier, List<Song>>(HistorySongsNotifier.new);
 
-class HistorySongsNotifier extends StateNotifier<List<Song>> {
-  HistorySongsNotifier() : super([]) {
-    load();
+class HistorySongsNotifier extends Notifier<List<Song>> {
+  @override
+  List<Song> build() {
+    return HiveService.getHistory();
   }
 
   void load() {
@@ -44,13 +43,12 @@ class HistorySongsNotifier extends StateNotifier<List<Song>> {
 }
 
 final customPlaylistsProvider =
-    StateNotifierProvider<CustomPlaylistsNotifier, List<Playlist>>((ref) {
-  return CustomPlaylistsNotifier();
-});
+    NotifierProvider<CustomPlaylistsNotifier, List<Playlist>>(CustomPlaylistsNotifier.new);
 
-class CustomPlaylistsNotifier extends StateNotifier<List<Playlist>> {
-  CustomPlaylistsNotifier() : super([]) {
-    load();
+class CustomPlaylistsNotifier extends Notifier<List<Playlist>> {
+  @override
+  List<Playlist> build() {
+    return HiveService.getPlaylists();
   }
 
   void load() {
@@ -126,7 +124,7 @@ class _LikedSongsTab extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     if (songs.isEmpty) {
-      return _EmptyState(
+      return const _EmptyState(
         icon: Icons.favorite_border_rounded,
         title: 'No liked songs yet',
         subtitle: 'Songs you mark as favorite will appear here',
@@ -155,7 +153,8 @@ class _LikedSongsTab extends ConsumerWidget {
             ),
           ),
           title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(song.artistString, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(song.artistString,
+              maxLines: 1, overflow: TextOverflow.ellipsis),
           onTap: () {
             ref.read(playerProvider.notifier).playSong(song, queue: songs);
           },
@@ -176,7 +175,7 @@ class _HistoryTab extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     if (songs.isEmpty) {
-      return _EmptyState(
+      return const _EmptyState(
         icon: Icons.history_rounded,
         title: 'No listening history',
         subtitle: 'Songs you play will appear here',
@@ -220,10 +219,14 @@ class _HistoryTab extends ConsumerWidget {
                     ),
                   ),
                 ),
-                title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: Text(song.artistString, maxLines: 1, overflow: TextOverflow.ellipsis),
+                title: Text(song.title,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text(song.artistString,
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
                 onTap: () {
-                  ref.read(playerProvider.notifier).playSong(song, queue: songs);
+                  ref
+                      .read(playerProvider.notifier)
+                      .playSong(song, queue: songs);
                 },
               );
             },
@@ -271,7 +274,7 @@ class _PlaylistsTab extends ConsumerWidget {
         const Divider(),
         Expanded(
           child: playlists.isEmpty
-              ? _EmptyState(
+              ? const _EmptyState(
                   icon: Icons.playlist_play_rounded,
                   title: 'No playlists yet',
                   subtitle: 'Create local playlists or import from Spotify',
@@ -294,21 +297,28 @@ class _PlaylistsTab extends ConsumerWidget {
                                   width: 48,
                                   height: 48,
                                   color: cs.surfaceContainerHighest,
-                                  child: const Icon(Icons.playlist_play_rounded),
+                                  child:
+                                      const Icon(Icons.playlist_play_rounded),
                                 ),
                               )
                             : Container(
                                 width: 48,
                                 height: 48,
                                 color: cs.primaryContainer,
-                                child: Icon(Icons.playlist_play_rounded, color: cs.onPrimaryContainer),
+                                child: Icon(Icons.playlist_play_rounded,
+                                    color: cs.onPrimaryContainer),
                               ),
                       ),
-                      title: Text(playlist.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: Text('${playlist.songCount ?? playlist.songs.length} songs'),
+                      title: Text(playlist.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text(
+                          '${playlist.songCount ?? playlist.songs.length} songs'),
                       trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-                        onPressed: () => ref.read(customPlaylistsProvider.notifier).delete(playlist.id),
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            color: Colors.red),
+                        onPressed: () => ref
+                            .read(customPlaylistsProvider.notifier)
+                            .delete(playlist.id),
                       ),
                       onTap: () => _showPlaylistSongs(context, ref, playlist),
                     );
@@ -424,7 +434,9 @@ class _PlaylistsTab extends ConsumerWidget {
                             ref.read(customPlaylistsProvider.notifier).load();
                             Navigator.pop(dialogContext);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Spotify Playlist imported successfully!')),
+                              const SnackBar(
+                                  content: Text(
+                                      'Spotify Playlist imported successfully!')),
                             );
                           },
                         );
@@ -441,9 +453,11 @@ class _PlaylistsTab extends ConsumerWidget {
     );
   }
 
-  void _showPlaylistSongs(BuildContext context, WidgetRef ref, Playlist playlist) {
+  void _showPlaylistSongs(
+      BuildContext context, WidgetRef ref, Playlist playlist) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -464,19 +478,24 @@ class _PlaylistsTab extends ConsumerWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                      color:
+                          colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         playlist.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '${playlist.songs.length} songs',
@@ -510,20 +529,30 @@ class _PlaylistsTab extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                              subtitle: Text(song.artistString, maxLines: 1, overflow: TextOverflow.ellipsis),
+                              title: Text(song.title,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                              subtitle: Text(song.artistString,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
                               trailing: IconButton(
-                                icon: const Icon(Icons.remove_circle_outline_rounded, size: 20),
+                                icon: const Icon(
+                                    Icons.remove_circle_outline_rounded,
+                                    size: 20),
                                 onPressed: () async {
-                                  await HiveService.removeSongFromPlaylist(playlist.id, song.id);
-                                  ref.read(customPlaylistsProvider.notifier).load();
+                                  await HiveService.removeSongFromPlaylist(
+                                      playlist.id, song.id);
+                                  ref
+                                      .read(customPlaylistsProvider.notifier)
+                                      .load();
                                   if (context.mounted) {
-                                    Navigator.pop(context); // close sheet to refresh
+                                    Navigator.pop(
+                                        context); // close sheet to refresh
                                   }
                                 },
                               ),
                               onTap: () {
-                                ref.read(playerProvider.notifier).playSong(song, queue: playlist.songs);
+                                ref
+                                    .read(playerProvider.notifier)
+                                    .playSong(song, queue: playlist.songs);
                                 Navigator.pop(context);
                               },
                             );
@@ -550,7 +579,7 @@ class _DownloadsTab extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     if (downloads.isEmpty) {
-      return _EmptyState(
+      return const _EmptyState(
         icon: Icons.download_outlined,
         title: 'No downloads yet',
         subtitle: 'Download songs from player to play offline',
@@ -579,7 +608,8 @@ class _DownloadsTab extends ConsumerWidget {
             ),
           ),
           title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(song.artistString, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(song.artistString,
+              maxLines: 1, overflow: TextOverflow.ellipsis),
           onTap: () {
             ref.read(playerProvider.notifier).playSong(song, queue: downloads);
           },
@@ -615,7 +645,7 @@ class _EmptyState extends StatelessWidget {
               width: 88,
               height: 88,
               decoration: BoxDecoration(
-                color: cs.primaryContainer.withOpacity(0.5),
+                color: cs.primaryContainer.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 40, color: cs.primary),

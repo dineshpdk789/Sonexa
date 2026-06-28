@@ -58,15 +58,18 @@ class _ErrorInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
-        appException = const NetworkException(message: 'Connection timed out. Please check your network.');
+        appException = const NetworkException(
+            message: 'Connection timed out. Please check your network.');
         break;
       case DioExceptionType.connectionError:
-        appException = const NetworkException(message: 'No internet connection. Please check your network.');
+        appException = const NetworkException(
+            message: 'No internet connection. Please check your network.');
         break;
       case DioExceptionType.badResponse:
         final statusCode = err.response?.statusCode;
         if (statusCode == 404) {
-          appException = const NotFoundException(message: 'The requested resource was not found.');
+          appException = const NotFoundException(
+              message: 'The requested resource was not found.');
         } else {
           appException = ServerException(
             message: 'Server error (${statusCode ?? 'unknown'}).',
@@ -93,7 +96,7 @@ class _RetryInterceptor extends Interceptor {
   final Dio dio;
   final int maxRetries;
 
-  _RetryInterceptor({required this.dio, this.maxRetries = 2});
+  _RetryInterceptor({required this.dio, this.maxRetries = 3});
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {

@@ -29,6 +29,16 @@ class HiveService {
   // ── Settings ─────────────────────────────────────────────────────────────────
   static T? getSetting<T>(String key) => _settingsBox.get(key) as T?;
 
+  static List<String>? getStringListSetting(String key) {
+    final value = _settingsBox.get(key);
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    } else if (value is String) {
+      return [value];
+    }
+    return null;
+  }
+
   static Future<void> saveSetting<T>(String key, T value) =>
       _settingsBox.put(key, value);
 
@@ -150,7 +160,8 @@ class HiveService {
     );
   }
 
-  static Future<void> createPlaylist(String name, {String? description, String? coverUrl}) async {
+  static Future<void> createPlaylist(String name,
+      {String? description, String? coverUrl}) async {
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final playlist = {
       'id': id,
@@ -171,8 +182,8 @@ class HiveService {
     if (playlistData == null) return;
     final map = Map<String, dynamic>.from(playlistData as Map);
     final songsList = List<Map<String, dynamic>>.from(
-      (map['songs'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map))
-    );
+        (map['songs'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map)));
     if (!songsList.any((s) => s['id'] == song.id)) {
       songsList.add(song.toJson());
       map['songs'] = songsList;
@@ -183,16 +194,18 @@ class HiveService {
     }
   }
 
-  static Future<void> removeSongFromPlaylist(String playlistId, String songId) async {
+  static Future<void> removeSongFromPlaylist(
+      String playlistId, String songId) async {
     final playlistData = _playlistsBox.get(playlistId);
     if (playlistData == null) return;
     final map = Map<String, dynamic>.from(playlistData as Map);
     final songsList = List<Map<String, dynamic>>.from(
-      (map['songs'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map))
-    );
+        (map['songs'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map)));
     songsList.removeWhere((s) => s['id'] == songId);
     map['songs'] = songsList;
-    if (songsList.isNotEmpty && (map['coverUrl'] == null || (map['coverUrl'] as String).isEmpty)) {
+    if (songsList.isNotEmpty &&
+        (map['coverUrl'] == null || (map['coverUrl'] as String).isEmpty)) {
       map['coverUrl'] = songsList.first['coverUrl'];
     } else if (songsList.isEmpty) {
       map['coverUrl'] = '';
@@ -200,13 +213,14 @@ class HiveService {
     await _playlistsBox.put(playlistId, map);
   }
 
-  static Future<void> reorderPlaylistSongs(String playlistId, int oldIndex, int newIndex) async {
+  static Future<void> reorderPlaylistSongs(
+      String playlistId, int oldIndex, int newIndex) async {
     final playlistData = _playlistsBox.get(playlistId);
     if (playlistData == null) return;
     final map = Map<String, dynamic>.from(playlistData as Map);
     final songsList = List<Map<String, dynamic>>.from(
-      (map['songs'] as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map))
-    );
+        (map['songs'] as List? ?? [])
+            .map((e) => Map<String, dynamic>.from(e as Map)));
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
@@ -256,8 +270,10 @@ class HiveService {
     await _downloadsBox.put(song.id, task);
   }
 
-  static Future<void> updateDownloadTask(
-      String songId, {required String status, required double progress, String? filePath}) async {
+  static Future<void> updateDownloadTask(String songId,
+      {required String status,
+      required double progress,
+      String? filePath}) async {
     final taskData = _downloadsBox.get(songId);
     if (taskData == null) return;
     final map = Map<String, dynamic>.from(taskData as Map);

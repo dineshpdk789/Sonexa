@@ -13,7 +13,8 @@ class Lyrics {
     this.copyright,
   });
 
-  bool get hasLyrics => (plainLyrics?.isNotEmpty ?? false) || (syncedLines?.isNotEmpty ?? false);
+  bool get hasLyrics =>
+      (plainLyrics?.isNotEmpty ?? false) || (syncedLines?.isNotEmpty ?? false);
 }
 
 class LyricsLine {

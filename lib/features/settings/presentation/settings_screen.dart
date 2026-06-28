@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sonexa/shared/providers/theme_provider.dart';
-import 'package:sonexa/shared/providers/settings_provider.dart';
+import 'package:sonexa/core/shared/providers/theme_provider.dart';
+import 'package:sonexa/core/shared/providers/settings_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -40,7 +40,11 @@ class SettingsScreen extends ConsumerWidget {
     String formatLocationSub(String loc) {
       if (loc == 'internal') return 'Internal Storage';
       if (loc == 'cache') return 'Cache Storage';
+<<<<<<< HEAD
       return 'Custom Folder';
+=======
+      return 'Custom Location';
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
     }
 
     return Scaffold(
@@ -56,7 +60,14 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
 
           // Appearance
-          _SectionTitle(title: 'Appearance'),
+          const _SectionTitle(title: 'Appearance'),
+          ListTile(
+            leading: const Icon(Icons.language_rounded),
+            title: const Text('Songs Language'),
+            subtitle: Text(ref.watch(songLanguageProvider).join(', ')),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => _showLanguagePicker(context, ref, ref.read(songLanguageProvider)),
+          ),
           _ThemeTile(currentMode: themeMode, ref: ref),
           ListTile(
             leading: const Icon(Icons.palette_rounded),
@@ -75,11 +86,12 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
 
           // Playback
-          _SectionTitle(title: 'Playback'),
+          const _SectionTitle(title: 'Playback'),
           SwitchListTile(
             secondary: const Icon(Icons.psychology_rounded),
             title: const Text('Echo Brain AI Queue'),
-            subtitle: const Text('Auto-inject similar tracks when queue runs low'),
+            subtitle:
+                const Text('Auto-inject similar tracks when queue runs low'),
             value: echoBrainEnabled,
             onChanged: (val) {
               ref.read(echoBrainEnabledProvider.notifier).setEnabled(val);
@@ -108,7 +120,8 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Streaming Quality'),
             subtitle: Text(streamingQuality.replaceAll('kbps', ' kbps')),
             trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => _showQualityPicker(context, ref, streamingQuality, false),
+            onTap: () =>
+                _showQualityPicker(context, ref, streamingQuality, false),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.skip_next_outlined),
@@ -140,12 +153,14 @@ class SettingsScreen extends ConsumerWidget {
                   Expanded(
                     child: Slider(
                       value: crossfadeDuration,
-                      min: 1.0,
+                      min: 0.0,
                       max: 12.0,
-                      divisions: 11,
+                      divisions: 12,
                       label: '${crossfadeDuration.toInt()}s',
                       onChanged: (val) {
-                        ref.read(crossfadeDurationProvider.notifier).setDuration(val);
+                        ref
+                            .read(crossfadeDurationProvider.notifier)
+                            .setDuration(val);
                       },
                     ),
                   ),
@@ -158,19 +173,21 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
 
           // Downloads
-          _SectionTitle(title: 'Downloads'),
+          const _SectionTitle(title: 'Downloads'),
           ListTile(
             leading: const Icon(Icons.download_rounded),
             title: const Text('Download Quality'),
             subtitle: Text(downloadQuality.replaceAll('kbps', ' kbps')),
             trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => _showQualityPicker(context, ref, downloadQuality, true),
+            onTap: () =>
+                _showQualityPicker(context, ref, downloadQuality, true),
           ),
           ListTile(
             leading: const Icon(Icons.folder_outlined),
             title: const Text('Download Location'),
             subtitle: dirsAsync.when(
               data: (dirs) {
+<<<<<<< HEAD
                 String path;
                 if (downloadLocation == 'internal') {
                   path = dirs['internal']!;
@@ -179,6 +196,13 @@ class SettingsScreen extends ConsumerWidget {
                 } else {
                   path = downloadLocation;
                 }
+=======
+                final path = downloadLocation == 'internal'
+                    ? dirs['internal']
+                    : downloadLocation == 'cache'
+                        ? dirs['cache']
+                        : downloadLocation;
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
                 return Text(
                   '${formatLocationSub(downloadLocation)}\n$path',
                   maxLines: 2,
@@ -189,7 +213,8 @@ class SettingsScreen extends ConsumerWidget {
               error: (_, __) => Text(formatLocationSub(downloadLocation)),
             ),
             trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => _showDownloadLocationPicker(context, ref, downloadLocation),
+            onTap: () =>
+                _showDownloadLocationPicker(context, ref, downloadLocation),
           ),
           ListTile(
             leading: const Icon(Icons.delete_sweep_outlined),
@@ -201,7 +226,7 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
 
           // About
-          _SectionTitle(title: 'About'),
+          const _SectionTitle(title: 'About'),
           ListTile(
             leading: const Icon(Icons.info_outline_rounded),
             title: const Text('App Version'),
@@ -236,6 +261,7 @@ class SettingsScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, String currentVal, bool isDownload) {
     showDialog(
       context: context,
+<<<<<<< HEAD
       builder: (dialogContext) => AlertDialog(
         title: Text(isDownload ? 'Download Quality' : 'Streaming Quality'),
         content: Column(
@@ -257,6 +283,36 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
+=======
+      useRootNavigator: true,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              isDownload ? 'Download Quality' : 'Streaming Quality',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ...['96kbps', '160kbps', '320kbps'].map(
+            (q) => ListTile(
+              title: Text(q.replaceAll('kbps', ' kbps')),
+              trailing:
+                  q == currentVal ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                if (isDownload) {
+                  ref.read(downloadQualityProvider.notifier).setQuality(q);
+                } else {
+                  ref.read(streamingQualityProvider.notifier).setQuality(q);
+                }
+                Navigator.pop(sheetContext);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
       ),
     );
   }
@@ -265,6 +321,7 @@ class SettingsScreen extends ConsumerWidget {
       BuildContext context, WidgetRef ref, String currentVal) {
     showDialog(
       context: context,
+<<<<<<< HEAD
       builder: (dialogContext) => AlertDialog(
         title: const Text('Choose Download Location'),
         content: Column(
@@ -307,10 +364,63 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
+=======
+      useRootNavigator: true,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Choose Download Location',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.phone_android_rounded),
+            title: const Text('Internal Storage'),
+            subtitle: const Text('App documents folder (Persisted)'),
+            trailing: currentVal == 'internal'
+                ? const Icon(Icons.check_rounded)
+                : null,
+            onTap: () {
+              ref
+                  .read(downloadLocationProvider.notifier)
+                  .setLocation('internal');
+              Navigator.pop(sheetContext);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sd_storage_rounded),
+            title: const Text('Cache Storage'),
+            subtitle: const Text('App cache folder (May be cleared by OS)'),
+            trailing:
+                currentVal == 'cache' ? const Icon(Icons.check_rounded) : null,
+            onTap: () {
+              ref.read(downloadLocationProvider.notifier).setLocation('cache');
+              Navigator.pop(sheetContext);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder_special_rounded),
+            title: const Text('Custom Location'),
+            subtitle: const Text('Enter a custom folder path'),
+            trailing: currentVal != 'internal' && currentVal != 'cache'
+                ? const Icon(Icons.check_rounded)
+                : null,
+            onTap: () {
+              Navigator.pop(sheetContext);
+              _showCustomLocationDialog(context, ref);
+            },
+          ),
+          const SizedBox(height: 16),
+        ],
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
       ),
     );
   }
 
+<<<<<<< HEAD
   void _showAccentColorPicker(BuildContext context, WidgetRef ref, String currentVal) {
     showDialog(
       context: context,
@@ -332,6 +442,139 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
+=======
+  void _showCustomLocationDialog(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController(
+        text: ref.read(downloadLocationProvider) != 'internal' &&
+                ref.read(downloadLocationProvider) != 'cache'
+            ? ref.read(downloadLocationProvider)
+            : '');
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Custom Download Location'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'e.g., /storage/emulated/0/Music',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final val = controller.text.trim();
+              if (val.isNotEmpty) {
+                ref.read(downloadLocationProvider.notifier).setLocation(val);
+              }
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguagePicker(BuildContext context, WidgetRef ref, List<String> currentVal) {
+    List<String> tempVal = List.from(currentVal);
+    final languages = ['English', 'Hindi', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Punjabi', 'Bengali', 'Marathi', 'Gujarati'];
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Choose Songs Language',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: languages.map(
+                        (l) => CheckboxListTile(
+                          title: Text(l),
+                          value: tempVal.contains(l),
+                          onChanged: (bool? checked) {
+                            setModalState(() {
+                              if (checked == true) {
+                                if (!tempVal.contains(l)) tempVal.add(l);
+                              } else {
+                                tempVal.remove(l);
+                              }
+                            });
+                          },
+                        ),
+                      ).toList(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: FilledButton(
+                    onPressed: () {
+                      if (tempVal.isEmpty) tempVal.add('Hindi'); // Fallback
+                      ref.read(songLanguageProvider.notifier).setLanguage(tempVal);
+                      Navigator.pop(sheetContext);
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                    ),
+                    child: const Text('Save Languages'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAccentColorPicker(
+      BuildContext context, WidgetRef ref, String currentVal) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Choose Accent Theme Color',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ...['Purple', 'Blue', 'Green', 'Orange'].map(
+            (c) => ListTile(
+              leading: Icon(Icons.lens, color: _getColorFromValue(c)),
+              title: Text(c),
+              trailing:
+                  c == currentVal ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                ref.read(accentColorProvider.notifier).setColor(c);
+                Navigator.pop(sheetContext);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
       ),
     );
   }
@@ -349,6 +592,7 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+<<<<<<< HEAD
   void _showDensityPicker(BuildContext context, WidgetRef ref, String currentVal) {
     showDialog(
       context: context,
@@ -369,6 +613,36 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
+=======
+  void _showDensityPicker(
+      BuildContext context, WidgetRef ref, String currentVal) {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Choose UI Density Spacing',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ...['Compact', 'Medium', 'Relaxed'].map(
+            (d) => ListTile(
+              title: Text(d),
+              trailing:
+                  d == currentVal ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                ref.read(uiDensityProvider.notifier).setDensity(d);
+                Navigator.pop(sheetContext);
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
       ),
     );
   }
@@ -486,8 +760,8 @@ class _ProfileSection extends StatelessWidget {
           CircleAvatar(
             radius: 32,
             backgroundColor: cs.primary,
-            child: const Icon(Icons.person_rounded,
-                color: Colors.white, size: 32),
+            child:
+                const Icon(Icons.person_rounded, color: Colors.white, size: 32),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -505,7 +779,7 @@ class _ProfileSection extends StatelessWidget {
                 Text(
                   'SONEXA User',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: cs.onPrimaryContainer.withOpacity(0.7),
+                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
                       ),
                 ),
               ],
@@ -568,6 +842,7 @@ class _ThemeTile extends StatelessWidget {
   void _showThemePicker(BuildContext context) {
     showDialog(
       context: context,
+<<<<<<< HEAD
       builder: (dialogContext) => AlertDialog(
         title: const Text('Choose Theme'),
         content: Column(
@@ -585,6 +860,27 @@ class _ThemeTile extends StatelessWidget {
                   Navigator.pop(dialogContext);
                 },
               ),
+=======
+      useRootNavigator: true,
+      builder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text('Choose Theme',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+          ...AppThemeMode.values.map(
+            (mode) => ListTile(
+              leading: Icon(_modeIcon(mode)),
+              title: Text(_modeName(mode)),
+              trailing:
+                  currentMode == mode ? const Icon(Icons.check_rounded) : null,
+              onTap: () {
+                ref.read(themeModeProvider.notifier).setMode(mode);
+                Navigator.pop(sheetContext);
+              },
+>>>>>>> 8e6970c6074979b74fcf39fdb9a5b3f71c6f13ff
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:sonexa/core/storage/hive_service.dart';
 import 'package:sonexa/domain/entities/song.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sonexa/core/storage/isar_service.dart';
 
 final downloadServiceProvider = Provider<DownloadService>((ref) {
   return DownloadService();
@@ -49,7 +50,8 @@ class DownloadService {
 
       final filePath = '${downloadsDir.path}/${songId}_320.$ext';
 
-      await HiveService.updateDownloadTask(songId, status: 'downloading', progress: 0.0);
+      await HiveService.updateDownloadTask(songId,
+          status: 'downloading', progress: 0.0);
 
       await _dio.download(
         url,
@@ -58,7 +60,8 @@ class DownloadService {
           if (total != -1) {
             final progress = (received / total).clamp(0.0, 1.0);
             onProgress?.call(progress);
-            HiveService.updateDownloadTask(songId, status: 'downloading', progress: progress);
+            HiveService.updateDownloadTask(songId,
+                status: 'downloading', progress: progress);
           }
         },
       );
@@ -70,10 +73,13 @@ class DownloadService {
         progress: 1.0,
         filePath: filePath,
       );
+      song.localFilePath = filePath;
+      await IsarService.saveSong(song);
       onComplete?.call(filePath);
     } catch (e) {
       _activeDownloads.remove(songId);
-      await HiveService.updateDownloadTask(songId, status: 'failed', progress: 0.0);
+      await HiveService.updateDownloadTask(songId,
+          status: 'failed', progress: 0.0);
       onError?.call(e.toString());
     }
   }

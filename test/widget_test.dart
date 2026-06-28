@@ -7,9 +7,11 @@ import 'package:sonexa/core/services/audio_player_service.dart';
 import 'package:sonexa/features/player/presentation/player_provider.dart';
 import 'package:sonexa/features/home/presentation/home_provider.dart';
 import 'package:sonexa/features/downloads/presentation/downloads_screen.dart';
+import 'package:sonexa/domain/entities/song.dart';
+import 'package:sonexa/domain/entities/album.dart';
 
 class MockPlayerNotifier extends PlayerNotifier {
-  MockPlayerNotifier() : super(AudioPlayerService.instance);
+  MockPlayerNotifier();
 
   @override
   void listenToStreams() {
@@ -27,16 +29,25 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          playerProvider.overrideWith((ref) => MockPlayerNotifier()),
+          playerProvider.overrideWith(MockPlayerNotifier.new),
           homeProvider.overrideWith((ref) async => const HomeData(
-                trending: [],
-                newReleases: [],
-                featuredAlbums: [],
-                featuredArtists: [],
+                heroItems: [],
+                speedDialItems: [],
+                communityHits: [],
+                keepListeningArtists: [],
+                keepListeningSongs: [],
+                moodAndGenres: [],
+                themedPlaylists: [],
+                musicVideos: [],
                 charts: [],
-                moods: [],
-                echoBrain: [],
-                suggested: [],
+                similarToArtistBase: Artist(id: '0', name: 'Unknown', imageUrl: ''),
+                similarToArtistItems: [],
+                newReleases: [],
+                indiaHits: [],
+                throwback90s: [],
+                summerPlaylists: [],
+                trendingCommunity: [],
+                livePerformances: [],
               )),
           activeTasksProvider.overrideWith((ref) => Stream.value([])),
         ],

@@ -29,7 +29,9 @@ class AudioPlayerService {
 
   void _applyCrossfade(Duration position) {
     try {
-      final enabled = HiveService.getSetting<bool>(AppConstants.crossfadeEnabledKey) ?? false;
+      final enabled =
+          HiveService.getSetting<bool>(AppConstants.crossfadeEnabledKey) ??
+              false;
       if (!enabled) {
         if (_player.volume != 1.0) {
           _player.setVolume(1.0);
@@ -43,7 +45,8 @@ class AudioPlayerService {
         return;
       }
 
-      final fadeSeconds = HiveService.getSetting<double>(AppConstants.crossfadeKey) ?? 3.0;
+      final fadeSeconds =
+          HiveService.getSetting<double>(AppConstants.crossfadeKey) ?? 3.0;
       if (fadeSeconds <= 0) {
         _player.setVolume(1.0);
         return;
@@ -76,19 +79,19 @@ class AudioPlayerService {
   Future<void> playSong(Song song) async {
     var url = song.localFilePath ?? song.bestDownloadUrl;
     if (url.isEmpty) return;
-    
+
     // Force HTTPS for streaming URLs to avoid cleartext issues on mobile platforms
     if (url.startsWith('http://')) {
       url = url.replaceFirst('http://', 'https://');
     }
-    
+
     await _player.stop();
     await _player.setUrl(
-      url, 
-      tag: _toMediaItem(song), 
-      preload: true,
+      url,
+      tag: _toMediaItem(song),
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Referer': 'https://www.jiosaavn.com/',
       },
     );
@@ -108,17 +111,17 @@ class AudioPlayerService {
         url = url.replaceFirst('http://', 'https://');
       }
       return AudioSource.uri(
-        Uri.parse(url), 
+        Uri.parse(url),
         tag: _toMediaItem(s),
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
           'Referer': 'https://www.jiosaavn.com/',
         },
       );
     }).toList();
 
-    final playlist = ConcatenatingAudioSource(children: sources);
-    await _player.setAudioSource(playlist, initialIndex: index);
+    await _player.setAudioSources(sources, initialIndex: index);
     await _player.play();
   }
 
@@ -132,17 +135,18 @@ class AudioPlayerService {
           url = url.replaceFirst('http://', 'https://');
         }
         return AudioSource.uri(
-          Uri.parse(url), 
+          Uri.parse(url),
           tag: _toMediaItem(s),
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             'Referer': 'https://www.jiosaavn.com/',
           },
         );
       }).toList();
 
-      final playlist = ConcatenatingAudioSource(children: sources);
-      await _player.setAudioSource(playlist, initialIndex: index, initialPosition: currentPos);
+      await _player.setAudioSources(sources,
+          initialIndex: index, initialPosition: currentPos);
       if (isPlaying) {
         await _player.play();
       }
