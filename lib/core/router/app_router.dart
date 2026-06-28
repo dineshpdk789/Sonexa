@@ -7,7 +7,7 @@ import 'package:sonexa/features/settings/presentation/settings_screen.dart';
 import 'package:sonexa/features/player/presentation/full_player_screen.dart';
 import 'package:sonexa/features/lyrics/presentation/lyrics_screen.dart';
 import 'package:sonexa/features/downloads/presentation/downloads_screen.dart';
-import 'package:sonexa/shared/widgets/scaffold_with_nav.dart';
+import 'package:sonexa/core/shared/widgets/scaffold_with_nav.dart';
 
 class RouteNames {
   static const home = '/';

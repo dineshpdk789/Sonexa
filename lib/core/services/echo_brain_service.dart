@@ -13,7 +13,8 @@ class EchoBrainService {
 
   EchoBrainService(this._ref);
 
-  Future<void> checkAndInject(EchoPlayerState state, PlayerNotifier notifier) async {
+  Future<void> checkAndInject(
+      EchoPlayerState state, PlayerNotifier notifier) async {
     final enabled = HiveService.getSetting<bool>('echo_brain_enabled') ?? true;
     if (!enabled) return;
 
@@ -26,17 +27,21 @@ class EchoBrainService {
       try {
         final currentSong = state.currentSong;
         if (currentSong != null) {
-          final query = currentSong.artists.isNotEmpty ? currentSong.artists.first : currentSong.album;
+          final query = currentSong.artists.isNotEmpty
+              ? currentSong.artists.first
+              : currentSong.album;
           final songRepo = _ref.read(songRepositoryProvider);
-          
+
           final recommendations = await songRepo.searchSongs(query);
           int injectedCount = 0;
 
           for (final song in recommendations) {
             // Check if track is already in the play queue
-            if (!state.queue.any((s) => s.id == song.id) && song.id != currentSong.id) {
+            if (!state.queue.any((s) => s.id == song.id) &&
+                song.id != currentSong.id) {
               final aiSong = song.copyWith(
-                label: 'AI: Match artist interest "${currentSong.primaryArtist}"',
+                label:
+                    'AI: Match artist interest "${currentSong.primaryArtist}"',
               );
               notifier.addToQueue(aiSong);
               injectedCount++;

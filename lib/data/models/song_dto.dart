@@ -64,14 +64,20 @@ class SongDto {
 
   static List<Map<String, dynamic>> _parseImageList(dynamic val) {
     if (val is List) {
-      return val.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      return val
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
     }
     return [];
   }
 
   static List<Map<String, dynamic>> _parseDownloadList(dynamic val) {
     if (val is List) {
-      return val.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList();
+      return val
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
     }
     return [];
   }
@@ -81,8 +87,7 @@ class SongDto {
     // Prefer highest quality
     final quality500 = image.where((e) => e['quality'] == '500x500').toList();
     if (quality500.isNotEmpty) return quality500.first['url'] as String? ?? '';
-    return Formatters.upgradeImageQuality(
-        image.last['url'] as String? ?? '');
+    return Formatters.upgradeImageQuality(image.last['url'] as String? ?? '');
   }
 
   String? _urlForQuality(String quality) {
@@ -95,7 +100,10 @@ class SongDto {
   Song toEntity() => Song(
         id: id,
         title: name,
-        artists: artists.map((a) => Formatters.decodeHtmlEntities(a['name'] as String? ?? '')).toList(),
+        artists: artists
+            .map((a) =>
+                Formatters.decodeHtmlEntities(a['name'] as String? ?? ''))
+            .toList(),
         artistId: artists.isNotEmpty ? artists.first['id'] as String? : null,
         album: Formatters.decodeHtmlEntities(album?['name'] as String? ?? ''),
         albumId: album?['id'] as String?,

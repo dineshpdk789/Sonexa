@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sonexa/core/storage/hive_service.dart';
 import 'package:sonexa/features/player/presentation/player_provider.dart';
 import 'package:sonexa/features/search/presentation/search_provider.dart';
-import 'package:sonexa/shared/widgets/music_cards.dart';
-import 'package:sonexa/shared/widgets/shimmer_loading.dart';
+import 'package:sonexa/core/shared/widgets/music_cards.dart';
+import 'package:sonexa/core/shared/widgets/shimmer_loading.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -130,7 +130,7 @@ class _SearchResultsView extends ConsumerWidget {
                 color: Theme.of(context)
                     .colorScheme
                     .onSurfaceVariant
-                    .withOpacity(0.4)),
+                    .withValues(alpha: 0.4)),
             const SizedBox(height: 16),
             Text(
               'No results found',
@@ -181,8 +181,7 @@ class _SearchResultsView extends ConsumerWidget {
                 GridView.builder(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,
@@ -204,8 +203,7 @@ class _SearchResultsView extends ConsumerWidget {
                 GridView.builder(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 16,
@@ -224,8 +222,7 @@ class _SearchResultsView extends ConsumerWidget {
                 GridView.builder(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     crossAxisSpacing: 14,
                     mainAxisSpacing: 14,

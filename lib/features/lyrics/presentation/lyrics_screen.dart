@@ -50,7 +50,9 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              _translationEnabled ? Icons.translate_rounded : Icons.g_translate_outlined,
+              _translationEnabled
+                  ? Icons.translate_rounded
+                  : Icons.g_translate_outlined,
               color: _translationEnabled ? cs.primary : null,
             ),
             onPressed: () {
@@ -89,7 +91,8 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.lyrics_outlined,
-                      size: 64, color: cs.onSurfaceVariant.withOpacity(0.4)),
+                      size: 64,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
                   const SizedBox(height: 16),
                   Text('No lyrics available',
                       style: Theme.of(context).textTheme.titleMedium),
@@ -117,8 +120,9 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
               ),
               // Copy/Share panel at bottom
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: cs.surfaceContainerHighest.withOpacity(0.3),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -131,7 +135,8 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
                             '';
                         Clipboard.setData(ClipboardData(text: text));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Lyrics copied to clipboard!')),
+                          const SnackBar(
+                              content: Text('Lyrics copied to clipboard!')),
                         );
                       },
                     ),
@@ -144,7 +149,9 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
                             '';
                         Clipboard.setData(ClipboardData(text: text));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Sharing active: link copied to share!')),
+                          const SnackBar(
+                              content: Text(
+                                  'Sharing active: link copied to share!')),
                         );
                       },
                     ),
@@ -163,6 +170,7 @@ class _LyricsScreenState extends ConsumerState<LyricsScreen> {
   void _showFontScaleSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -297,7 +305,9 @@ class _SyncedLyricsState extends State<_SyncedLyrics> {
                 widget.lines[i].text,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: isActive ? FontWeight.w800 : FontWeight.w400,
-                      color: isActive ? cs.primary : cs.onSurface.withOpacity(0.35),
+                      color: isActive
+                          ? cs.primary
+                          : cs.onSurface.withValues(alpha: 0.35),
                       fontSize: sizeBase * widget.fontScale,
                     ),
               ),
@@ -308,8 +318,8 @@ class _SyncedLyricsState extends State<_SyncedLyrics> {
                   style: TextStyle(
                     fontSize: (sizeBase - 4.0) * widget.fontScale,
                     color: isActive
-                        ? cs.secondary.withOpacity(0.9)
-                        : cs.onSurface.withOpacity(0.22),
+                        ? cs.secondary.withValues(alpha: 0.9)
+                        : cs.onSurface.withValues(alpha: 0.22),
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -343,7 +353,8 @@ class _PlainLyrics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayText = translationEnabled ? _getMockFullTranslation(text) : text;
+    final displayText =
+        translationEnabled ? _getMockFullTranslation(text) : text;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 160),
       child: Column(
@@ -364,7 +375,7 @@ class _PlainLyrics extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurfaceVariant
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                   ),
             ),
           ],

@@ -3,14 +3,15 @@ import 'package:sonexa/domain/entities/album.dart';
 import 'package:sonexa/domain/entities/lyrics.dart';
 import 'package:sonexa/domain/entities/song.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonexa/core/storage/isar_service.dart';
 
 // ── Abstract Interfaces ───────────────────────────────────────────────────────
 
 abstract class SongRepository {
   Future<List<Song>> searchSongs(String query, {int page = 1});
   Future<Song?> getSong(String id);
-  Future<List<Song>> getTrendingSongs();
-  Future<List<Song>> getNewReleases();
+  Future<List<Song>> getTrendingSongs({List<String> languages = const ['hindi']});
+  Future<List<Song>> getNewReleases({List<String> languages = const ['hindi']});
 }
 
 abstract class AlbumRepository {
@@ -44,7 +45,9 @@ class SongRepositoryImpl implements SongRepository {
   @override
   Future<List<Song>> searchSongs(String query, {int page = 1}) async {
     try {
-      return await _datasource.searchSongs(query, page: page);
+      final songs = await _datasource.searchSongs(query, page: page);
+      await IsarService.saveSongs(songs);
+      return songs;
     } catch (_) {
       return [];
     }
@@ -53,20 +56,37 @@ class SongRepositoryImpl implements SongRepository {
   @override
   Future<Song?> getSong(String id) async {
     try {
-      return await _datasource.getSongById(id);
+      final song = await _datasource.getSongById(id);
+      if (song != null) {
+        await IsarService.saveSong(song);
+      }
+      return song;
     } catch (_) {
-      return null;
+      // Fallback to local cache
+      return await IsarService.getSong(id);
     }
   }
 
   @override
-  Future<List<Song>> getTrendingSongs() async {
-    return await _datasource.getTrendingSongs();
+  Future<List<Song>> getTrendingSongs({List<String> languages = const ['hindi']}) async {
+    try {
+      final songs = await _datasource.getTrendingSongs(languages: languages);
+      await IsarService.saveSongs(songs);
+      return songs;
+    } catch (_) {
+      return await IsarService.getAllSongs();
+    }
   }
 
   @override
-  Future<List<Song>> getNewReleases() async {
-    return await _datasource.getNewReleases();
+  Future<List<Song>> getNewReleases({List<String> languages = const ['hindi']}) async {
+    try {
+      final songs = await _datasource.getNewReleases(languages: languages);
+      await IsarService.saveSongs(songs);
+      return songs;
+    } catch (_) {
+      return await IsarService.getAllSongs();
+    }
   }
 }
 
